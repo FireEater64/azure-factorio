@@ -29,12 +29,13 @@ resource "azurerm_container_group" "factorio" {
   ip_address_type     = "public"
   dns_name_label      = "factorio"
   os_type             = "Linux"
+  restart_policy      = "OnFailure"
 
   container {
     name   = "factorio"
     image  = "factoriotools/factorio:stable"
-    cpu    = "2"
-    memory = "2"
+    cpu    = "1"
+    memory = "3"
 
     ports {
       port     = 34197

@@ -22,6 +22,20 @@ resource "azurerm_storage_share" "factorio" {
   quota                = 1
 }
 
+resource "azurerm_storage_account" "factoriosavefiles" {
+  resource_group_name      = azurerm_resource_group.factorio.name
+  name                     = "factoriosavefiles"
+  location                 = azurerm_resource_group.factorio.location
+  account_tier             = "Standard"
+  account_replication_type = "GZRS"
+}
+
+resource "azurerm_storage_share" "factorioshare" {
+  storage_account_name = azurerm_storage_account.factoriosavefiles.name
+  name                 = "factorioshare"
+  quota                = 1
+}
+
 resource "azurerm_container_group" "factorio" {
   name                = "factorio"
   location            = azurerm_resource_group.factorio.location
@@ -35,7 +49,7 @@ resource "azurerm_container_group" "factorio" {
     name   = "factorio"
     image  = "factoriotools/factorio:stable"
     cpu    = "1"
-    memory = "3"
+    memory = "3.5"
 
     ports {
       port     = 34197
@@ -45,10 +59,10 @@ resource "azurerm_container_group" "factorio" {
     volume {
         name        = "saves"
         mount_path  = "/factorio"
-        share_name  = azurerm_storage_share.factorio.name
+        share_name  = azurerm_storage_share.factorioshare.name
 
-        storage_account_name = azurerm_storage_account.factorio.name
-        storage_account_key  = azurerm_storage_account.factorio.primary_access_key
+        storage_account_name = azurerm_storage_account.factoriosavefiles.name
+        storage_account_key  = azurerm_storage_account.factoriosavefiles.primary_access_key
     }
   }
 }

@@ -8,20 +8,6 @@ resource "azurerm_resource_group" "factorio" {
   location = "UK South"
 }
 
-resource "azurerm_storage_account" "factorio" {
-  resource_group_name      = azurerm_resource_group.factorio.name
-  name                     = "factoriosavestorage"
-  location                 = azurerm_resource_group.factorio.location
-  account_tier             = "Standard"
-  account_replication_type = "GRS"
-}
-
-resource "azurerm_storage_share" "factorio" {
-  storage_account_name = azurerm_storage_account.factorio.name
-  name                 = "factorio-saves"
-  quota                = 1
-}
-
 resource "azurerm_storage_account" "factoriosavefiles" {
   resource_group_name      = azurerm_resource_group.factorio.name
   name                     = "factoriosavefiles"
@@ -49,11 +35,15 @@ resource "azurerm_container_group" "factorio" {
     name   = "factorio"
     image  = "factoriotools/factorio:stable"
     cpu    = "1"
-    memory = "3.5"
+    memory = "7" # Adam said so
 
     ports {
       port     = 34197
       protocol = "UDP"
+    }
+
+    environment_variables = {
+      "UPDATE_MODS_ON_START" = "true"
     }
 
     volume {
